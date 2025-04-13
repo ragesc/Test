@@ -235,60 +235,75 @@ local InputUsername = Tabs.Main:CreateInput("Input", {
     end
 })
 
+-- Function to fetch player data
+local function getUserId(username)
+    local success, playerData = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet("https://users.roblox.com/v1/users/"..username))
+    end)
+    if success and playerData then
+        return playerData.id
+    else
+        return nil
+    end
+end
+
+-- Function to scan for players in servers
+local function scanServersForPlayer(gameid, targetUserId)
+    local success, result = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..gameid.."/servers/Public?sortOrder=Asc&limit=100"))
+    end)
+
+    if success and result and result.data then
+        for _, server in pairs(result.data) do
+            -- Check players in the server
+            local success2, serverData = pcall(function()
+                return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/servers/"..server.id.."/players"))
+            end)
+
+            if success2 and serverData then
+                print("Checking server " .. server.id .. " with " .. #serverData .. " players.")
+                for _, player in pairs(serverData) do
+                    if player.id == targetUserId then
+                        -- Player found, teleport to the server
+                        print("Found player " .. username .. " in server " .. server.id)
+                        return server.id
+                    end
+                end
+            else
+                warn("Failed to fetch player list for server " .. server.id)
+            end
+        end
+    end
+    return nil
+end
+
 -- Button to trigger the server snipe
 Tabs.Main:CreateButton{
     Title = "Snipe Player",
-    Description = "find",
+    Description = "Find and join a server with the player.",
     Callback = function()
         local placeId = tonumber(gameid)
         local targetUsername = username
 
         if placeId and targetUsername ~= "" then
-            local success, result = pcall(function()
-                return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"))
-            end)
+            -- Get the User ID for the player
+            local targetUserId = getUserId(targetUsername)
+            if not targetUserId then
+                warn("Player not found or invalid username.")
+                return
+            end
 
-            if success and result and result.data then
-                local targetPlayerId = nil
-                
-                -- Check if the username is online and get the userId
-                local successPlayer, playerData = pcall(function()
-                    return HttpService:JSONDecode(game:HttpGet("https://users.roblox.com/v1/users/" .. targetUsername))
-                end)
-                
-                if successPlayer and playerData then
-                    targetPlayerId = playerData.id
-                    print("Player found with User ID: " .. targetPlayerId)
-                else
-                    warn("Player not found or invalid username.")
-                    return
-                end
+            print("Player found with User ID: " .. targetUserId)
 
-                -- Scan servers
-                for _, server in pairs(result.data) do
-                    -- Check players in the server
-                    local success2, serverData = pcall(function()
-                        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/servers/"..server.id.."/players"))
-                    end)
-
-                    if success2 and serverData then
-                        -- Check if the target player ID is in the server
-                        for _, player in pairs(serverData) do
-                            if player.id == targetPlayerId then
-                                -- Player found, teleport to the server
-                                print("Found player " .. targetUsername .. " in server " .. server.id)
-                                TeleportService:TeleportToPlaceInstance(placeId, server.id, LocalPlayer)
-                                return
-                            end
-                        end
-                    end
-                end
-                warn("Player not found in any of the scanned servers.")
+            -- Try scanning for the player in multiple servers
+            local serverId = scanServersForPlayer(placeId, targetUserId)
+            if serverId then
+                -- Teleport to the server if found
+                TeleportService:TeleportToPlaceInstance(placeId, serverId, LocalPlayer)
             else
-                warn("Failed to fetch server list.")
+                warn("Player not found in any of the scanned servers.")
             end
         else
             warn("Invalid Game ID or Username.")
         end
     end
-}
