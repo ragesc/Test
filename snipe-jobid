@@ -51,7 +51,7 @@ Tabs.Main:CreateButton{
     end
 }
 
-Tabs.Main:CreateInput("Input", {
+local Input = Tabs.Main:CreateInput("Input", {
     Title = "Game Id",
     Default = "",
     Placeholder = "Placeholder",
@@ -63,7 +63,7 @@ Tabs.Main:CreateInput("Input", {
     end
 })
 
-Tabs.Main:CreateInput("Input", {
+local Input = Tabs.Main:CreateInput("Input", {
     Title = "Job Id",
     Default = "",
     Placeholder = "Placeholder",
