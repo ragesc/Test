@@ -33,7 +33,7 @@ local gameid = ""
 local jobid = ""
 
 Tabs.Main:CreateButton{
-    Title = "copy gameid",
+    Title = "Copy gameid",
     Description = "",
     Callback = function()
         local clipboardFunc = setclipboard or toclipboard
@@ -47,7 +47,7 @@ Tabs.Main:CreateButton{
 }
 
 Tabs.Main:CreateButton{
-    Title = "copy jobid",
+    Title = "Copy jobid",
     Description = "",
     Callback = function()
         local clipboardFunc = setclipboard or toclipboard
@@ -61,7 +61,7 @@ Tabs.Main:CreateButton{
 }
 
 local Input = Tabs.Main:CreateInput("Input", {
-    Title = "Game Id",
+    Title = "GameId",
     Default = "",
     Placeholder = "",
     Numeric = false, -- Only allows numbers
@@ -73,7 +73,7 @@ local Input = Tabs.Main:CreateInput("Input", {
 })
 
 local Input = Tabs.Main:CreateInput("Input", {
-    Title = "Job Id",
+    Title = "JobId",
     Default = "",
     Placeholder = "",
     Numeric = false, -- Only allows numbers
@@ -134,8 +134,8 @@ Tabs.Main:CreateButton{
 }
 
 Tabs.Main:CreateButton{
-    Title = "Server Hop",
-    Description = "",
+    Title = "Small Server",
+    Description = "Might not work",
     Callback = function()
         local HttpService = game:GetService("HttpService")
         local TeleportService = game:GetService("TeleportService")
