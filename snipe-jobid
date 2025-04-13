@@ -1,11 +1,9 @@
 local validKeys = {
-    ["fde1391a96ab1c33"] = true,
-    ["anotherkey123"] = true -- You can add more
+    ["Lqv5Y8Hd29MWcAz"] = true,
 }
 
--- Validate the key
 if not getgenv().Key or not validKeys[getgenv().Key] then
-    game.Players.LocalPlayer:Kick("Invalid or missing key. Please get a valid key to use this script.")
+    game.Players.LocalPlayer:Kick("[Whitelist Error] Invalid key. Please use the correct key.")
     return
 end
 
