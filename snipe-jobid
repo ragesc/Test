@@ -193,3 +193,86 @@ Tabs.Main:CreateButton{
         rejoinServer()
     end
 }
+
+local Tabs = {
+    Main = Window:CreateTab{
+        Title = "Snipe",
+        Icon = "nil"
+    }
+}
+
+-- Variables to store input values
+local gameid = ""
+local username = ""
+
+-- Input fields for Game ID and Username
+local InputGameId = Tabs.Main:CreateInput("Input", {
+    Title = "GameId",
+    Default = "",
+    Placeholder = "Enter Game ID",
+    Numeric = false,  -- Only allows numbers
+    Finished = false,
+    Callback = function(Value)
+        gameid = Value
+        print("Game ID set to:", gameid)
+    end
+})
+
+local InputUsername = Tabs.Main:CreateInput("Input", {
+    Title = "Username",
+    Default = "",
+    Placeholder = "Enter Username",
+    Numeric = false,  -- Allows any string
+    Finished = false,
+    Callback = function(Value)
+        username = Value
+        print("Username set to:", username)
+    end
+})
+
+-- Button to trigger the server snipe
+Tabs.Main:CreateButton{
+    Title = "Snipe Player",
+    Description = "find",
+    Callback = function()
+        local HttpService = game:GetService("HttpService")
+        local TeleportService = game:GetService("TeleportService")
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local placeId = tonumber(gameid)
+        local targetUsername = username
+
+        if placeId and targetUsername ~= "" then
+            local success, result = pcall(function()
+                return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"))
+            end)
+
+            if success and result and result.data then
+                for _, server in pairs(result.data) do
+                    -- Check players in the server
+                    local success2, serverData = pcall(function()
+                        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/servers/"..server.id.."/players"))
+                    end)
+
+                    if success2 and serverData then
+                        -- Check if the target username is in the player list
+                        for _, player in pairs(serverData) do
+                            if player.name == targetUsername then
+                                -- Player found, teleport to the server
+                                print("Found player " .. targetUsername .. " in server " .. server.id)
+                                TeleportService:TeleportToPlaceInstance(placeId, server.id, LocalPlayer)
+                                return
+                            end
+                        end
+                    end
+                end
+                warn("Player not found in any of the scanned servers.")
+            else
+                warn("Failed to fetch server list.")
+            end
+        else
+            warn("Invalid Game ID or Username.")
+        end
+    end
+}
