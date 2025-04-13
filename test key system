@@ -1,4 +1,2 @@
-repeat task.wait() until game:IsLoaded()
-
-getgenv().Key = "fde1391a96ab1c33"
+ task.wait() until game:IsLoaded
 
