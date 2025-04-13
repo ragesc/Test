@@ -176,3 +176,20 @@ Tabs.Main:CreateButton{
         end
     end
 }
+
+Tabs.Main:CreateButton{
+    Title = "Rejoin Server",
+    Description = "Might not work",
+    Callback = function()
+        local TeleportService = game:GetService("TeleportService")
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local function rejoinServer()
+            local currentJobId = game.JobId
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, currentJobId, LocalPlayer)
+        end
+
+        rejoinServer()
+    end
+}
