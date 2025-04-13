@@ -99,3 +99,36 @@ Tabs.Main:CreateButton{
         end
     end
 }
+
+Tabs.Main:CreateButton{
+    Title = "Server Hop",
+    Description = "",
+    Callback = function()
+        local HttpService = game:GetService("HttpService")
+        local TeleportService = game:GetService("TeleportService")
+        local LocalPlayer = game.Players.LocalPlayer
+
+        local PlaceId = game.PlaceId
+        local currentJobId = game.JobId
+
+        local function serverHop()
+            local success, response = pcall(function()
+                return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+            end)
+
+            if success and response and response.data then
+                for _, server in pairs(response.data) do
+                    if server.playing < server.maxPlayers and server.id ~= currentJobId then
+                        TeleportService:TeleportToPlaceInstance(PlaceId, server.id, LocalPlayer)
+                        return
+                    end
+                end
+                warn("No different server found.")
+            else
+                warn("Failed to get server list.")
+            end
+        end
+
+        serverHop()
+    end
+}
