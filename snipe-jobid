@@ -201,6 +201,11 @@ local Tabs = {
     }
 }
 
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 -- Variables to store input values
 local gameid = ""
 local username = ""
@@ -235,11 +240,6 @@ Tabs.Main:CreateButton{
     Title = "Snipe Player",
     Description = "find",
     Callback = function()
-        local HttpService = game:GetService("HttpService")
-        local TeleportService = game:GetService("TeleportService")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-
         local placeId = tonumber(gameid)
         local targetUsername = username
 
@@ -249,6 +249,22 @@ Tabs.Main:CreateButton{
             end)
 
             if success and result and result.data then
+                local targetPlayerId = nil
+                
+                -- Check if the username is online and get the userId
+                local successPlayer, playerData = pcall(function()
+                    return HttpService:JSONDecode(game:HttpGet("https://users.roblox.com/v1/users/" .. targetUsername))
+                end)
+                
+                if successPlayer and playerData then
+                    targetPlayerId = playerData.id
+                    print("Player found with User ID: " .. targetPlayerId)
+                else
+                    warn("Player not found or invalid username.")
+                    return
+                end
+
+                -- Scan servers
                 for _, server in pairs(result.data) do
                     -- Check players in the server
                     local success2, serverData = pcall(function()
@@ -256,9 +272,9 @@ Tabs.Main:CreateButton{
                     end)
 
                     if success2 and serverData then
-                        -- Check if the target username is in the player list
+                        -- Check if the target player ID is in the server
                         for _, player in pairs(serverData) do
-                            if player.name == targetUsername then
+                            if player.id == targetPlayerId then
                                 -- Player found, teleport to the server
                                 print("Found player " .. targetUsername .. " in server " .. server.id)
                                 TeleportService:TeleportToPlaceInstance(placeId, server.id, LocalPlayer)
