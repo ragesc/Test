@@ -3,7 +3,7 @@ local validKeys = {
 }
 
 if not getgenv().Key or not validKeys[getgenv().Key] then
-    game.Players.LocalPlayer:Kick("[Whitelist Error] Invalid key. Please use the correct key.")
+    game.Players.LocalPlayer:Kick("Whitelist error Invalid key. Please use the correct key.")
     return
 end
 
@@ -63,7 +63,7 @@ Tabs.Main:CreateButton{
 local Input = Tabs.Main:CreateInput("Input", {
     Title = "Game Id",
     Default = "",
-    Placeholder = "Placeholder",
+    Placeholder = "",
     Numeric = false, -- Only allows numbers
     Finished = false,
     Callback = function(Value)
@@ -75,7 +75,7 @@ local Input = Tabs.Main:CreateInput("Input", {
 local Input = Tabs.Main:CreateInput("Input", {
     Title = "Job Id",
     Default = "",
-    Placeholder = "Placeholder",
+    Placeholder = "",
     Numeric = false, -- Only allows numbers
     Finished = false,
     Callback = function(Value)
